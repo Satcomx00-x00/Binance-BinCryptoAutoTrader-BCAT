@@ -55,42 +55,59 @@ def check_order_status(currency):
 
 ###################################################################################################
 def buy(currency, price, buy_marge_percent):
+        info = client.get_symbol_info('ETHUSDT')
+        minimum = info['filters'][2]['minQty']
+        print(info['filters'][2]['minQty'])
+
         alone_value = current_price(currency)
         # 
         alone_value = float("{0:.2f}".format(alone_value * buy_marge_percent))
         qty = float(price / alone_value)
         qty = float("{0:.5f}".format(qty))
-        print(f"alone_value {alone_value} ")
-        print(f"with price {price}")
-        print(f"qty = {qty}")                          
-        order = client.create_order(
-                                      symbol=currency,
-                                      side=SIDE_BUY,
-                                      type=ORDER_TYPE_LIMIT,
-                                      timeInForce=TIME_IN_FORCE_GTC,
-                                      quantity=qty,
-                                      price=alone_value)
-        check_order_status(currency)
-        trade_cycle("buy", currency, price)
+        if float(qty) < float(minimum):
+          print("QTY < Minimum required, ERROR")
+        else:
+          print(f"alone_value {alone_value} ")
+          print(f"with price {price}")
+          print(f"qty = {qty}")                          
+          order = client.create_order(
+                                        symbol=currency,
+                                        side=SIDE_BUY,
+                                        type=ORDER_TYPE_LIMIT,
+                                        timeInForce=TIME_IN_FORCE_GTC,
+                                        quantity=qty,
+                                        price=alone_value)
+          print(order)
+          check_order_status(currency)
+          trade_cycle("buy", currency, price)
         
 def sell(currency, price, sell_profit_percent):
+        info = client.get_symbol_info('ETHUSDT')
+        minimum = info['filters'][2]['minQty']
+        print(info['filters'][2]['minQty'])
+        
         alone_value = current_price(currency)
         #
-        alone_value = float("{0:.2f}".format(alone_value * sell_profit_percent))
+        alone_value = float("{0:.4f}".format(alone_value * sell_profit_percent))
         qty = float(price / alone_value)
-        qty = float("{0:.5f}".format(qty))
-        print(f"alone_value {alone_value} ")
-        print(f"with price {price}")
-        print(f"qty = {qty}")                          
-        order = client.create_order(
-                                      symbol=currency,
-                                      side=SIDE_SELL,
-                                      type=ORDER_TYPE_LIMIT,
-                                      timeInForce=TIME_IN_FORCE_GTC,
-                                      quantity=qty,
-                                      price=alone_value)
-        check_order_status(currency)
-        trade_cycle("sell", currency, price)
+        qty = float("{0:.3f}".format(qty))
+        if float(qty) < float(minimum):
+          print("QTY < Minimum required, ERROR")
+        else:
+          print(f"alone_value {alone_value} ")
+          print(f"with price {price}")
+          print(f"qty = {qty}")                          
+          order = client.create_order(
+                                        symbol=currency,
+                                        side=SIDE_SELL,
+                                        type=ORDER_TYPE_LIMIT,
+                                        timeInForce=TIME_IN_FORCE_GTC,
+                                        quantity=qty,
+                                        price=alone_value)
+          print(order)
+          check_order_status(currency)
+          trade_cycle("sell", currency, price)
+          
             
 def trade_cycle(last_order_type, currency, price):
   time.sleep(1)
@@ -107,17 +124,12 @@ def trade_cycle(last_order_type, currency, price):
 
 ###################################################################################################
 def main():
-    # actual_price = client.get_avg_price(symbol='BNBBTC')
-    trade1 = "buy" # Buy or Sell
-    BANK = float(10)
+    trade1 = "sell" # Buy or Sell
+    BANK = float(11)
     global sell_profit_percent, buy_marge_percent
     sell_profit_percent = float(1.01)
     buy_marge_percent = float(0.98)
-    currency = "MKRUSDT"
-
-    
-    # sellpercent = float()
-    # buypercent = float()
+    currency = "BNBUSDT"
 
     if trade1 == "buy":
       buy(currency, BANK, buy_marge_percent)

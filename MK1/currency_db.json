@@ -1,0 +1,37 @@
+{
+    "market": [
+        {
+           "symbol": "BNBBTC",
+           "unit_price": 4,
+           "decimal_limit": 3
+        },
+  
+        {
+           "symbol": "SUSHIBTC",
+           "unit_price": 2,
+           "decimal_limit": 7
+        },
+        {
+            "symbol": "MKRUSDT",
+            "unit_price": 5,
+            "decimal_limit": 2
+        },
+        {
+            "symbol": "BTCUSDT",
+            "unit_price": 2,
+            "decimal_limit": 6
+        },
+        {
+            "symbol": "ETHBTC",
+            "unit_price": 6,
+            "decimal_limit": 3
+        },
+        {
+            "symbol": "XRPBTC",
+            "unit_price": 8,
+            "decimal_limit": 0
+        }
+  
+     ]
+
+}
