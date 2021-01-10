@@ -80,6 +80,7 @@ def buy(currency, price):
                                       quantity=qty,
                                       price=alone_value)
         check_order_status(currency)
+        trade_cycle("buy", currency, price)
         
 def sell(currency, price):
         alone_value = current_price(currency)
@@ -98,8 +99,18 @@ def sell(currency, price):
                                       quantity=qty,
                                       price=alone_value)
         check_order_status(currency)
+        trade_cycle("sell", currency, price)
             
-        
+def trade_cycle(last_order_type, currency, price):
+  # last_order_type need to be BUY or SELL
+  if last_order_type == "buy":
+    buy(currency, price)
+  if last_order_type == "sell":
+    sell(currency, price)
+  else : 
+    print("ERROR ORDER TYPE IN trade_cycle() FUNCTION !")
+    
+
 ###################################################################################################
 def main():
     # actual_price = client.get_avg_price(symbol='BNBBTC')
