@@ -2,6 +2,7 @@ import json
 import os
 import time
 from time import sleep
+import demjson
 
 from binance.client import Client
 from binance.enums import *
@@ -22,9 +23,18 @@ def current_price(currency):
     return actual_price
 
 def check_order_activity(currency, orderid):
-  order = client.get_order(
+    activity = client.get_order(
                             symbol=currency,
                             orderId=orderid)
+    print(activity)
+    if activity["isWorking"] == True:
+      pass
+    elif activity["isWorking"] == False:
+      pass
+    else : 
+      print("Error in check_order_activity function")
+
+    
 
 def check_order_status(currency):
     actual_orders = client.get_open_orders()
@@ -53,9 +63,13 @@ def check_order_status(currency):
       return print(f"Order placed with {actual_orders} ORDER UID")
     time.sleep(0.1)
 
+def get_crypto_conf():
+  with open('config.json') as f:
+    config = json.load(f)
+
 ###################################################################################################
 def buy(currency, price, buy_marge_percent):
-        info = client.get_symbol_info('ETHUSDT')
+        info = client.get_symbol_info(currency)
         minimum = info['filters'][2]['minQty']
         print(info['filters'][2]['minQty'])
 
@@ -79,10 +93,14 @@ def buy(currency, price, buy_marge_percent):
                                         price=alone_value)
           print(order)
           check_order_status(currency)
-          trade_cycle("buy", currency, price)
+          orderid = order["orderId"]
+          print(f"Trade UID  :: {orderid}")                            
+          # print(order[0])
+          # check_order_status(currency)
+          trade_cycle("buy", currency, price, orderid)
         
 def sell(currency, price, sell_profit_percent):
-        info = client.get_symbol_info('ETHUSDT')
+        info = client.get_symbol_info(currency)
         minimum = info['filters'][2]['minQty']
         print(info['filters'][2]['minQty'])
         
@@ -94,9 +112,9 @@ def sell(currency, price, sell_profit_percent):
         if float(qty) < float(minimum):
           print("QTY < Minimum required, ERROR")
         else:
-          print(f"alone_value {alone_value} ")
+          print(f"Unit value {alone_value} ")
           print(f"with price {price}")
-          print(f"qty = {qty}")                          
+          print(f"quantity = {qty}")                          
           order = client.create_order(
                                         symbol=currency,
                                         side=SIDE_SELL,
@@ -104,14 +122,16 @@ def sell(currency, price, sell_profit_percent):
                                         timeInForce=TIME_IN_FORCE_GTC,
                                         quantity=qty,
                                         price=alone_value)
-          print(order)
-          check_order_status(currency)
-          trade_cycle("sell", currency, price)
+          # order = demjson.encode(order)  
+          orderid = order["orderId"]
+          print(f"Trade UID  :: {orderid}")                            
+          # print(order[0])
+          # check_order_status(currency)
+          trade_cycle("sell", currency, price, orderid)
           
-            
-def trade_cycle(last_order_type, currency, price):
+def trade_cycle(last_order_type, currency, price, orderid):
   time.sleep(1)
-  check_order_status(currency)
+  check_order_activity(currency, orderid)
 
   # last_order_type need to be BUY or SELL
   if last_order_type == "buy":
