@@ -6,7 +6,6 @@ from time import sleep
 from binance.client import Client
 from binance.enums import *
 from colorama import Back, Fore, Style, init
-
 init()
 # from colorama import init, Fore, Back, Style
 # init()
@@ -29,13 +28,6 @@ def check_order_activity(currency, orderid):
 
 def check_order_status(currency):
     actual_orders = client.get_open_orders()
-    # print(actual_orders)
-    # out=' '.join(map(str, actual_orders))
-    # print(out)
-    
-    # actual_orders=json.dumps(out)
-    # print(actual_orders['orderId'])
-
     print (actual_orders)
 
     actual_orders = str(actual_orders)
@@ -56,17 +48,16 @@ def check_order_status(currency):
     # print(actual_orders)
     print(f"{symbol} {currency}")
     if symbol != currency:
-        print(f"Order {actual_orders} already placed.")
+      return print(f"Order {actual_orders} already placed.")
     else :
       return print(f"Order placed with {actual_orders} ORDER UID")
     time.sleep(0.1)
-    check_order_status(currency)
 
 ###################################################################################################
-def buy(currency, price):
+def buy(currency, price, buy_marge_percent):
         alone_value = current_price(currency)
         # 
-        alone_value = float("{0:.2f}".format(alone_value * 0.98))
+        alone_value = float("{0:.2f}".format(alone_value * buy_marge_percent))
         qty = float(price / alone_value)
         qty = float("{0:.5f}".format(qty))
         print(f"alone_value {alone_value} ")
@@ -82,10 +73,10 @@ def buy(currency, price):
         check_order_status(currency)
         trade_cycle("buy", currency, price)
         
-def sell(currency, price):
+def sell(currency, price, sell_profit_percent):
         alone_value = current_price(currency)
-        # 
-        alone_value = float("{0:.2f}".format(alone_value * 1.01))
+        #
+        alone_value = float("{0:.2f}".format(alone_value * sell_profit_percent))
         qty = float(price / alone_value)
         qty = float("{0:.5f}".format(qty))
         print(f"alone_value {alone_value} ")
@@ -102,11 +93,14 @@ def sell(currency, price):
         trade_cycle("sell", currency, price)
             
 def trade_cycle(last_order_type, currency, price):
+  time.sleep(1)
+  check_order_status(currency)
+
   # last_order_type need to be BUY or SELL
   if last_order_type == "buy":
-    buy(currency, price)
+    buy(currency, price, buy_marge_percent)
   if last_order_type == "sell":
-    sell(currency, price)
+    sell(currency, price,sell_profit_percent)
   else : 
     print("ERROR ORDER TYPE IN trade_cycle() FUNCTION !")
     
@@ -116,6 +110,9 @@ def main():
     # actual_price = client.get_avg_price(symbol='BNBBTC')
     trade1 = "buy" # Buy or Sell
     BANK = float(10)
+    global sell_profit_percent, buy_marge_percent
+    sell_profit_percent = float(1.01)
+    buy_marge_percent = float(0.98)
     currency = "MKRUSDT"
 
     
@@ -123,9 +120,9 @@ def main():
     # buypercent = float()
 
     if trade1 == "buy":
-      buy(currency,BANK)
+      buy(currency, BANK, buy_marge_percent)
     elif trade1 == "sell":
-      sell(currency,BANK)
+      sell(currency, BANK, sell_profit_percent)
     else:
       print("Error with trade1 var, must choice btw buy and sell")
       
