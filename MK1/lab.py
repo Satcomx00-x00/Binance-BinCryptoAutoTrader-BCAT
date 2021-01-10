@@ -27,7 +27,6 @@ def check_order_activity(currency, orderid):
                             symbol=currency,
                             orderId=orderid)
 
-
 def check_order_status(currency):
     actual_orders = client.get_open_orders()
     # print(actual_orders)
