@@ -83,7 +83,6 @@ def buy(currency, price, buy_marge_percent):
           print(f"Trade UID  :: {orderid}")                            
           # print(order[0])
           # check_order_status(currency)
-          last_type = "buy"
           trade_cycle("buy", currency, price, orderid)
         
 def sell(currency, price, sell_profit_percent):
@@ -115,7 +114,6 @@ def sell(currency, price, sell_profit_percent):
           print(f"Trade UID  :: {orderid}")                            
           # print(order[0])
           # check_order_status(currency)
-          last_type = "sell"
           trade_cycle("sell", currency, price, orderid)
 
 def check_order_activity(currency, orderid):
@@ -131,15 +129,14 @@ def check_order_activity(currency, orderid):
     else : 
       print("Error in check_order_activity function")
 
-
 def trade_cycle(last_order_type, currency, price, orderid):
   time.sleep(5)
   print("trade_cycle()")
   print(orderid)
-  status = check_order_activity(currency, orderid)
-  print(status)
   while True:
     status = check_order_activity(currency, orderid)
+    print(status)
+
     if status == "NEW":
       time.sleep(2)
       print(f"order activity state : {status}")
@@ -155,15 +152,14 @@ def trade_cycle(last_order_type, currency, price, orderid):
         print("ERROR ORDER TYPE IN trade_cycle() FUNCTION !")
         break
 
-
 ###################################################################################################
 def main():
-    trade1 = "buy" # Buy or Sell
+    trade1 = "sell" # Buy or Sell
     BANK = float(11)
     global sell_profit_percent, buy_marge_percent, last_type
     last_type = trade1
-    sell_profit_percent = float(1.1)
-    buy_marge_percent = float(0.90)
+    sell_profit_percent = float(1.015)
+    buy_marge_percent = float(0.995)
     currency = "BNBUSDT"
 
     if trade1 == "buy":
@@ -172,7 +168,7 @@ def main():
       sell(currency, BANK, sell_profit_percent)
     else:
       print("Error with trade1 var, must choice btw buy and sell")
-      
+
 
     # actual_price = current_price(currency)
     # open_orders = client.get_open_orders()
