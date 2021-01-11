@@ -2,7 +2,6 @@ import json
 import os
 import time
 from time import sleep
-import demjson
 
 from binance.client import Client
 from binance.enums import *
@@ -22,19 +21,6 @@ def current_price(currency):
     actual_price = float(actual_price["price"])
     return actual_price
 
-def check_order_activity(currency, orderid):
-    activity = client.get_order(
-                            symbol=currency,
-                            orderId=orderid)
-    print(activity)
-    if activity["isWorking"] == True:
-      pass
-    elif activity["isWorking"] == False:
-      pass
-    else : 
-      print("Error in check_order_activity function")
-
-    
 
 def check_order_status(currency):
     actual_orders = client.get_open_orders()
@@ -75,9 +61,9 @@ def buy(currency, price, buy_marge_percent):
 
         alone_value = current_price(currency)
         # 
-        alone_value = float("{0:.2f}".format(alone_value * buy_marge_percent))
+        alone_value = float("{0:.4f}".format(alone_value * buy_marge_percent))
         qty = float(price / alone_value)
-        qty = float("{0:.5f}".format(qty))
+        qty = float("{0:.3f}".format(qty))
         if float(qty) < float(minimum):
           print("QTY < Minimum required, ERROR")
         else:
@@ -92,11 +78,12 @@ def buy(currency, price, buy_marge_percent):
                                         quantity=qty,
                                         price=alone_value)
           print(order)
-          check_order_status(currency)
           orderid = order["orderId"]
+          clientorderid = order["clientOrderId"]
           print(f"Trade UID  :: {orderid}")                            
           # print(order[0])
           # check_order_status(currency)
+          last_type = "buy"
           trade_cycle("buy", currency, price, orderid)
         
 def sell(currency, price, sell_profit_percent):
@@ -122,33 +109,61 @@ def sell(currency, price, sell_profit_percent):
                                         timeInForce=TIME_IN_FORCE_GTC,
                                         quantity=qty,
                                         price=alone_value)
-          # order = demjson.encode(order)  
+          print(order)
           orderid = order["orderId"]
+          clientorderid = order["clientOrderId"]
           print(f"Trade UID  :: {orderid}")                            
           # print(order[0])
           # check_order_status(currency)
+          last_type = "sell"
           trade_cycle("sell", currency, price, orderid)
-          
-def trade_cycle(last_order_type, currency, price, orderid):
-  time.sleep(1)
-  check_order_activity(currency, orderid)
 
-  # last_order_type need to be BUY or SELL
-  if last_order_type == "buy":
-    buy(currency, price, buy_marge_percent)
-  if last_order_type == "sell":
-    sell(currency, price,sell_profit_percent)
-  else : 
-    print("ERROR ORDER TYPE IN trade_cycle() FUNCTION !")
-    
+def check_order_activity(currency, orderid):
+    activity = client.get_order(
+                            symbol=currency,
+                            orderId=orderid)
+    print(activity)
+    # clientorderid
+    if activity["status"] == "NEW":
+      return "NEW"
+    elif activity["status"] == "CANCELED":
+      return "CANCELED"
+    else : 
+      print("Error in check_order_activity function")
+
+
+def trade_cycle(last_order_type, currency, price, orderid):
+  time.sleep(5)
+  print("trade_cycle()")
+  print(orderid)
+  status = check_order_activity(currency, orderid)
+  print(status)
+  while True:
+    status = check_order_activity(currency, orderid)
+    if status == "NEW":
+      time.sleep(2)
+      print(f"order activity state : {status}")
+    else :
+      # last_order_type need to be BUY or SELL
+      if last_order_type == "buy":
+        buy(currency, price, buy_marge_percent)
+        break
+      if last_order_type == "sell":
+        sell(currency, price,sell_profit_percent)
+        break
+      else : 
+        print("ERROR ORDER TYPE IN trade_cycle() FUNCTION !")
+        break
+
 
 ###################################################################################################
 def main():
-    trade1 = "sell" # Buy or Sell
+    trade1 = "buy" # Buy or Sell
     BANK = float(11)
-    global sell_profit_percent, buy_marge_percent
-    sell_profit_percent = float(1.01)
-    buy_marge_percent = float(0.98)
+    global sell_profit_percent, buy_marge_percent, last_type
+    last_type = trade1
+    sell_profit_percent = float(1.1)
+    buy_marge_percent = float(0.90)
     currency = "BNBUSDT"
 
     if trade1 == "buy":
@@ -164,8 +179,6 @@ def main():
     # print(open_orders)
     # if currency in open_orders:
     #   print(f"There is already an order for {currency} currency, IT'S NEED TO BE EMPTY !")
-
- 
 
 if __name__ == "__main__":
     main()
