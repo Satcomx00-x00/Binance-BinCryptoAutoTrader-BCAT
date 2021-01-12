@@ -21,7 +21,6 @@ def current_price(currency):
     actual_price = float(actual_price["price"])
     return actual_price
 
-
 def check_order_status(currency):
     actual_orders = client.get_open_orders()
     print (actual_orders)
@@ -54,13 +53,17 @@ def get_crypto_conf():
     config = json.load(f)
 
 ###################################################################################################
-def buy(currency, price, buy_marge_percent):
+def buy(currency, price, buy_marge_percent,state):
+        if state == True:
+          alone_value = current_price(currency)
+          alone_value = alone_value * BANK
+        else :
+          alone_value = current_price(currency)
         info = client.get_symbol_info(currency)
         minimum = info['filters'][2]['minQty']
         print("-----------------------------------")
         print(info['filters'][2]['minQty'])
 
-        alone_value = current_price(currency)
         alone_value = float("{0:.4f}".format(alone_value * buy_marge_percent))
         qty = float(price / alone_value)
         qty = float("{0:.3f}".format(qty))
@@ -83,13 +86,17 @@ def buy(currency, price, buy_marge_percent):
           print("-----------------------------------")
           trade_cycle("buy", currency, price, orderid)
         
-def sell(currency, price, sell_profit_percent):
+def sell(currency, price, sell_profit_percent, state):
+        if state == True:
+          alone_value = current_price(currency)
+          alone_value = alone_value * BANK
+        else :
+          alone_value = current_price(currency)
         info = client.get_symbol_info(currency)
         minimum = info['filters'][2]['minQty']
         print("-----------------------------------")
         print(info['filters'][2]['minQty'])
         
-        alone_value = current_price(currency)
         alone_value = float("{0:.4f}".format(alone_value * sell_profit_percent))
         qty = float(price / alone_value)
         qty = float("{0:.3f}".format(qty))
@@ -122,9 +129,9 @@ def check_order_activity(currency, orderid):
         return "NEW"
       else :
         return "CANCELED"
-  except "APIError(code=-2013)":
-      return "Order does not exist"
-
+  except :
+      time.sleep(1)
+      check_order_activity(currency, orderid)
 
 def trade_cycle(last_order_type, currency, price, orderid):
   time.sleep(5)
@@ -137,21 +144,21 @@ def trade_cycle(last_order_type, currency, price, orderid):
           print(f"order activity state {Fore.YELLOW}{status}{Style.RESET_ALL} With Type {Fore.RED}{last_order_type}{Style.RESET_ALL}")
       elif last_order_type == "buy":
           print(f"order activity state {Fore.YELLOW}{status}{Style.RESET_ALL} With Type {Fore.GREEN}{last_order_type}{Style.RESET_ALL}")
-    else :
-      # last_order_type need to be BUY or SELL
-      if status == "CANCELED":
-        if last_order_type == "buy":
-          buy(currency, price, buy_marge_percent)
-          break
-        if last_order_type == "sell":
-          sell(currency, price,sell_profit_percent)
-          break
-        
+
+    elif status == "CANCELED":
+      print(f"order activity state {Fore.YELLOW}{status}{Style.RESET_ALL} With Type {Fore.RED}{last_order_type}{Style.RESET_ALL}")
       if last_order_type == "buy":
-        sell(currency, price, buy_marge_percent)
+        buy(currency, price, buy_marge_percent, state)
         break
-      if last_order_type == "sell":
-        buy(currency, price,sell_profit_percent)
+      elif last_order_type == "sell":
+        sell(currency, price,sell_profit_percent, state)
+        break
+    else :
+      if last_order_type == "buy":
+        sell(currency, price, buy_marge_percent, state)
+        break
+      elif last_order_type == "sell":
+        buy(currency, price,sell_profit_percent, state)
         break
       else : 
         print("ERROR ORDER TYPE IN trade_cycle() FUNCTION !")
@@ -159,18 +166,20 @@ def trade_cycle(last_order_type, currency, price, orderid):
 
 ###################################################################################################
 def main():
+    global sell_profit_percent, buy_marge_percent, last_type, BANK, state
     trade1 = "sell" # Buy or Sell
-    BANK = float(11)
-    global sell_profit_percent, buy_marge_percent, last_type
-    last_type = trade1
-    sell_profit_percent = float(1.015)
-    buy_marge_percent = float(0.995)
     currency = "BNBUSDT"
 
+    BANK = float(11)
+    sell_profit_percent = float(1.001)
+    buy_marge_percent = float(0.999)
+    # # # # # # # # # # # # # # # #  DON'T TOUCH UNDER THIS LINE # # # # # # # # # # # # # # # # 
+    state = False
+    last_type = trade1
     if trade1 == "buy":
-      buy(currency, BANK, buy_marge_percent)
+      buy(currency, BANK, buy_marge_percent, state)
     elif trade1 == "sell":
-      sell(currency, BANK, sell_profit_percent)
+      sell(currency, BANK, sell_profit_percent,state)
     else:
       print("Error with trade1 var, must choice btw buy and sell")
 
