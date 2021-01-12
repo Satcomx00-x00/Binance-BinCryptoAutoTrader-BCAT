@@ -57,10 +57,10 @@ def get_crypto_conf():
 def buy(currency, price, buy_marge_percent):
         info = client.get_symbol_info(currency)
         minimum = info['filters'][2]['minQty']
+        print("-----------------------------------")
         print(info['filters'][2]['minQty'])
 
         alone_value = current_price(currency)
-        # 
         alone_value = float("{0:.4f}".format(alone_value * buy_marge_percent))
         qty = float(price / alone_value)
         qty = float("{0:.3f}".format(qty))
@@ -77,21 +77,19 @@ def buy(currency, price, buy_marge_percent):
                                         timeInForce=TIME_IN_FORCE_GTC,
                                         quantity=qty,
                                         price=alone_value)
-          print(order)
           orderid = order["orderId"]
           clientorderid = order["clientOrderId"]
           print(f"Trade UID  :: {orderid}")                            
-          # print(order[0])
-          # check_order_status(currency)
+          print("-----------------------------------")
           trade_cycle("buy", currency, price, orderid)
         
 def sell(currency, price, sell_profit_percent):
         info = client.get_symbol_info(currency)
         minimum = info['filters'][2]['minQty']
+        print("-----------------------------------")
         print(info['filters'][2]['minQty'])
         
         alone_value = current_price(currency)
-        #
         alone_value = float("{0:.4f}".format(alone_value * sell_profit_percent))
         qty = float(price / alone_value)
         qty = float("{0:.3f}".format(qty))
@@ -108,45 +106,52 @@ def sell(currency, price, sell_profit_percent):
                                         timeInForce=TIME_IN_FORCE_GTC,
                                         quantity=qty,
                                         price=alone_value)
-          print(order)
           orderid = order["orderId"]
           clientorderid = order["clientOrderId"]
           print(f"Trade UID  :: {orderid}")                            
-          # print(order[0])
-          # check_order_status(currency)
+          print("-----------------------------------")
           trade_cycle("sell", currency, price, orderid)
 
 def check_order_activity(currency, orderid):
-    activity = client.get_order(
-                            symbol=currency,
-                            orderId=orderid)
-    print(activity)
-    # clientorderid
-    if activity["status"] == "NEW":
-      return "NEW"
-    elif activity["status"] == "CANCELED":
-      return "CANCELED"
-    else : 
-      print("Error in check_order_activity function")
+  try:
+      activity = client.get_order(
+                              symbol=currency,
+                              orderId=orderid)
+
+      if activity["status"] == "NEW":
+        return "NEW"
+      else :
+        return "CANCELED"
+  except "APIError(code=-2013)":
+      return "Order does not exist"
+
 
 def trade_cycle(last_order_type, currency, price, orderid):
   time.sleep(5)
-  print("trade_cycle()")
-  print(orderid)
   while True:
     status = check_order_activity(currency, orderid)
-    print(status)
 
     if status == "NEW":
       time.sleep(2)
-      print(f"order activity state : {status}")
+      if last_order_type == "sell":
+          print(f"order activity state {Fore.YELLOW}{status}{Style.RESET_ALL} With Type {Fore.RED}{last_order_type}{Style.RESET_ALL}")
+      elif last_order_type == "buy":
+          print(f"order activity state {Fore.YELLOW}{status}{Style.RESET_ALL} With Type {Fore.GREEN}{last_order_type}{Style.RESET_ALL}")
     else :
       # last_order_type need to be BUY or SELL
+      if status == "CANCELED":
+        if last_order_type == "buy":
+          buy(currency, price, buy_marge_percent)
+          break
+        if last_order_type == "sell":
+          sell(currency, price,sell_profit_percent)
+          break
+        
       if last_order_type == "buy":
-        buy(currency, price, buy_marge_percent)
+        sell(currency, price, buy_marge_percent)
         break
       if last_order_type == "sell":
-        sell(currency, price,sell_profit_percent)
+        buy(currency, price,sell_profit_percent)
         break
       else : 
         print("ERROR ORDER TYPE IN trade_cycle() FUNCTION !")
@@ -168,13 +173,6 @@ def main():
       sell(currency, BANK, sell_profit_percent)
     else:
       print("Error with trade1 var, must choice btw buy and sell")
-
-
-    # actual_price = current_price(currency)
-    # open_orders = client.get_open_orders()
-    # print(open_orders)
-    # if currency in open_orders:
-    #   print(f"There is already an order for {currency} currency, IT'S NEED TO BE EMPTY !")
 
 if __name__ == "__main__":
     main()
