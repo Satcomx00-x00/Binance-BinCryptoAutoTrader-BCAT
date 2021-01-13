@@ -2,14 +2,19 @@ import json
 import os
 import time
 from time import sleep
+from datetime import datetime
 
 from binance.client import Client
 from binance.enums import *
 from colorama import Back, Fore, Style, init
+os.system('cls')
+
 init()
 # from colorama import init, Fore, Back, Style
 # init()
-os.system('cls')
+actual_time = datetime.now()
+print(f"Program start timestamp : {actual_time}")
+
 with open('config.json') as f:
   data = json.load(f)
 client = Client(data["api_key"], data["api_secret"])
@@ -147,17 +152,21 @@ def trade_cycle(last_order_type, currency, price, orderid):
 
     elif status == "CANCELED":
       print(f"order activity state {Fore.YELLOW}{status}{Style.RESET_ALL} With Type {Fore.RED}{last_order_type}{Style.RESET_ALL}")
+      # if last_order_type == "buy":
+      #   print(datetime.now())
+      #   buy(currency, price, buy_marge_percent, state)
+      #   break
+      # elif last_order_type == "sell":
+      #   print(datetime.now())
+      #   sell(currency, price,sell_profit_percent, state)
+        # break
+    # else :
       if last_order_type == "buy":
-        buy(currency, price, buy_marge_percent, state)
-        break
-      elif last_order_type == "sell":
-        sell(currency, price,sell_profit_percent, state)
-        break
-    else :
-      if last_order_type == "buy":
+        print(datetime.now())
         sell(currency, price, buy_marge_percent, state)
         break
       elif last_order_type == "sell":
+        print(datetime.now())
         buy(currency, price,sell_profit_percent, state)
         break
       else : 
@@ -171,8 +180,8 @@ def main():
     currency = "BNBUSDT"
 
     BANK = float(11)
-    sell_profit_percent = float(1.001)
-    buy_marge_percent = float(0.999)
+    sell_profit_percent = float(1.01)
+    buy_marge_percent = float(0.99)
     # # # # # # # # # # # # # # # #  DON'T TOUCH UNDER THIS LINE # # # # # # # # # # # # # # # # 
     state = False
     last_type = trade1
@@ -185,3 +194,11 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+    # 35.66 € à 1h
