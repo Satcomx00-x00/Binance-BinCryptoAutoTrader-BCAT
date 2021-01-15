@@ -7,6 +7,8 @@ from datetime import datetime
 from binance.client import Client
 from binance.enums import *
 from colorama import Back, Fore, Style, init
+from prettytable import PrettyTable
+x = PrettyTable()
 os.system('cls')
 
 init()
@@ -173,15 +175,44 @@ def trade_cycle(last_order_type, currency, price, orderid):
         print("ERROR ORDER TYPE IN trade_cycle() FUNCTION !")
         break
 
+def wallet_loader():
+    BTC_balance = client.get_asset_balance(asset='BTC')
+    USDT_balance = client.get_asset_balance(asset='USDT')
+    BNB_balance = client.get_asset_balance(asset='BNB')
+    ETH_balance = client.get_asset_balance(asset='ETH')
+    # info = client.get_account()
+    # print(" ╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮")
+    # print(f"     ACCOUNT ASSETs BALANCES        ")
+    # print(f"  BTC  ↘                             ")
+    # print(f"        Free: {btc_balance['free']} ")
+    # print(f"        Locked:{btc_balance['locked']}")
+    # print(f"  USDT ↘                             ")
+    # print(f"        Free: {usdt_balance['free']} ")
+    # print(f"        Locked:{usdt_balance['locked']}")
+    # print(" ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯")
+    x.field_names = ["Curency", "Free", "Locked"]
+    x.add_rows(
+        [
+            ["BTC", BTC_balance['free'], BTC_balance['locked']],
+            ["USDT", USDT_balance['free'], USDT_balance['locked']],
+            ["BNB", BNB_balance['free'], BNB_balance['locked']],
+            ["ETH", ETH_balance['free'], ETH_balance['locked']],
+        ]
+    )
+    print(x)
+
+
+
 ###################################################################################################
 def main():
     global sell_profit_percent, buy_marge_percent, last_type, BANK, state
+    wallet_loader()
     trade1 = "sell" # Buy or Sell
     currency = "BNBUSDT"
 
-    BANK = float(11)
-    sell_profit_percent = float(1.01)
-    buy_marge_percent = float(0.99)
+    BANK = float(10)
+    sell_profit_percent = float(1.001)
+    buy_marge_percent = float(0.999)
     # # # # # # # # # # # # # # # #  DON'T TOUCH UNDER THIS LINE # # # # # # # # # # # # # # # # 
     state = False
     last_type = trade1
@@ -196,9 +227,4 @@ if __name__ == "__main__":
     main()
 
 
-
-
-
-
-
-    # 35.66 € à 1h
+# 26.12 à 20h41
