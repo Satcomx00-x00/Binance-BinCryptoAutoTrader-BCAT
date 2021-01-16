@@ -12,8 +12,6 @@ x = PrettyTable()
 os.system('cls')
 
 init()
-# from colorama import init, Fore, Back, Style
-# init()
 actual_time = datetime.now()
 print(f"Program start timestamp : {actual_time}")
 
@@ -154,15 +152,6 @@ def trade_cycle(last_order_type, currency, price, orderid):
 
     elif status == "CANCELED":
       print(f"order activity state {Fore.YELLOW}{status}{Style.RESET_ALL} With Type {Fore.RED}{last_order_type}{Style.RESET_ALL}")
-      # if last_order_type == "buy":
-      #   print(datetime.now())
-      #   buy(currency, price, buy_marge_percent, state)
-      #   break
-      # elif last_order_type == "sell":
-      #   print(datetime.now())
-      #   sell(currency, price,sell_profit_percent, state)
-        # break
-    # else :
       if last_order_type == "buy":
         print(datetime.now())
         sell(currency, price, buy_marge_percent, state)
@@ -180,28 +169,17 @@ def wallet_loader():
     USDT_balance = client.get_asset_balance(asset='USDT')
     BNB_balance = client.get_asset_balance(asset='BNB')
     ETH_balance = client.get_asset_balance(asset='ETH')
-    # info = client.get_account()
-    # print(" ╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮")
-    # print(f"     ACCOUNT ASSETs BALANCES        ")
-    # print(f"  BTC  ↘                             ")
-    # print(f"        Free: {btc_balance['free']} ")
-    # print(f"        Locked:{btc_balance['locked']}")
-    # print(f"  USDT ↘                             ")
-    # print(f"        Free: {usdt_balance['free']} ")
-    # print(f"        Locked:{usdt_balance['locked']}")
-    # print(" ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯")
+
     x.field_names = ["Curency", "Free", "Locked"]
     x.add_rows(
         [
-            ["BTC", BTC_balance['free'], BTC_balance['locked']],
-            ["USDT", USDT_balance['free'], USDT_balance['locked']],
-            ["BNB", BNB_balance['free'], BNB_balance['locked']],
-            ["ETH", ETH_balance['free'], ETH_balance['locked']],
+            ["BTC", Fore.GREEN+BTC_balance['free']+Style.RESET_ALL, Fore.YELLOW+BTC_balance['locked']+Style.RESET_ALL],
+            ["USDT", Fore.GREEN+USDT_balance['free']+Style.RESET_ALL, Fore.YELLOW+USDT_balance['locked']+Style.RESET_ALL],
+            ["BNB", Fore.GREEN+BNB_balance['free']+Style.RESET_ALL, Fore.YELLOW+BNB_balance['locked']+Style.RESET_ALL],
+            ["ETH", Fore.GREEN+ETH_balance['free']+Style.RESET_ALL, Fore.YELLOW+ETH_balance['locked']+Style.RESET_ALL],
         ]
     )
     print(x)
-
-
 
 ###################################################################################################
 def main():
@@ -227,4 +205,14 @@ if __name__ == "__main__":
     main()
 
 
-# 26.12 à 20h41
+
+    # info = client.get_account()
+    # print(" ╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮")
+    # print(f"     ACCOUNT ASSETs BALANCES        ")
+    # print(f"  BTC  ↘                             ")
+    # print(f"        Free: {btc_balance['free']} ")
+    # print(f"        Locked:{btc_balance['locked']}")
+    # print(f"  USDT ↘                             ")
+    # print(f"        Free: {usdt_balance['free']} ")
+    # print(f"        Locked:{usdt_balance['locked']}")
+    # print(" ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯")
