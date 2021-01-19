@@ -1,0 +1,5 @@
+python-telegram
+python-binance
+prettytable
+colorama
+json
