@@ -4,8 +4,11 @@ import time
 from time import sleep
 from datetime import datetime
 
+
+from binance.websockets import BinanceSocketManager
 from binance.client import Client
 from binance.enums import *
+
 from colorama import Back, Fore, Style, init
 from prettytable import PrettyTable
 x = PrettyTable()
@@ -123,6 +126,7 @@ def sell(currency, price, sell_profit_percent, state):
           print(f"Trade UID  :: {orderid}")                            
           print("-----------------------------------")
           trade_cycle("sell", currency, price, orderid)
+
 
 def check_order_activity(currency, orderid):
   try:
